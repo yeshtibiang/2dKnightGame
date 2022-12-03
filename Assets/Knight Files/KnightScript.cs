@@ -9,6 +9,7 @@ public class KnightScript : MonoBehaviour {
     Animator anim;
     bool lookRight = true;
     public bool OnAttack = false;
+    public bool canJump = false;
 
     //grounded
     [SerializeField] bool grounded;
@@ -16,7 +17,7 @@ public class KnightScript : MonoBehaviour {
     [SerializeField] Transform groundCheck;
     [SerializeField] LayerMask theGround;
 
-    [SerializeField] AudioClip sndAttack, sndJump, sndHurt, sndDead, sndWin;
+    [SerializeField] private AudioClip sndAttack, sndJump, sndHurt, sndDead, sndWin, sndGoblin;
     AudioSource audioS;
 
 	void Awake () {
@@ -51,6 +52,11 @@ public class KnightScript : MonoBehaviour {
             audioS.PlayOneShot(sndAttack);
         }
 
+        if (Input.GetKeyDown(KeyCode.Space) && grounded)
+        {
+            canJump = true;
+        }
+
         ///Debug
         if (Input.GetKeyDown(KeyCode.F1)) Hurt();
         if (Input.GetKeyDown(KeyCode.F2)) Win();
@@ -60,10 +66,11 @@ public class KnightScript : MonoBehaviour {
 
     private void FixedUpdate()
     {
-        if(Input.GetKeyDown(KeyCode.Space) && grounded)
+        if(canJump)
         {
             rb.AddForce(new Vector2(0, jumpForce));
             audioS.PlayOneShot(sndJump);
+            canJump = false;
         }
     }
 
@@ -96,17 +103,36 @@ public class KnightScript : MonoBehaviour {
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collision.gameObject.CompareTag("Chevalier"))
+        switch (collision.gameObject.tag)
         {
-            if(OnAttack)
-            {
-                Destroy(collision.gameObject);
-            }
-            else
-            {
-                Hurt();
-            }
+            case "Goblin":
+                if (OnAttack)
+                {
+                    // on veut après avoir attaquer l'enemi on va pouvoir le faire sauter
+                    Rigidbody2D rbGoblin = collision.gameObject.GetComponent<Rigidbody2D>();
+                    // mais vu que notre rigidbody est mis en kinematic on va devoir le rendre dynamic
+                    rbGoblin.bodyType = RigidbodyType2D.Dynamic;
+                    rbGoblin.AddForce(Vector2.up * 2000);
+                    audioS.PlayOneShot(sndGoblin);
+                }
+                else
+                {
+                    // on veut appliquer une force à notre personnage en fonction de la collision
+                    PlayerHurtMove(collision);
+                }
+                break;
+            case "Mace":
+                PlayerHurtMove(collision);
+                break;
         }
+        
+    }
+
+    public void PlayerHurtMove(Collision2D collision)
+    {
+        Vector2 move =  collision.transform.position - transform.position;
+        rb.AddForce(move.normalized * -200);
+        Hurt();
     }
 
     public void AttackBool()
