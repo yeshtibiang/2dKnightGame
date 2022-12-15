@@ -12,23 +12,26 @@ public class GoblinScript : MonoBehaviour
     private bool lookRight = true;
 
     private SpriteRenderer sp;
-    
+
+    private Animator anim;
     // Start is called before the first frame update
     void Start()
     {
         startPos = transform.position;
         sp = GetComponent<SpriteRenderer>();
+        anim = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        
         transform.Translate(Vector3.right * speed * Time.deltaTime);
         // on va utiliser Vector2.distance pour vérifier si la distance entre 2 vecteurs
         if (Vector2.Distance(transform.position, startPos) < 0.5f && !lookRight)
         {
             FlipCharacter();
-        }
+        }   
     }
 
     private void OnTriggerEnter2D(Collider2D col)
