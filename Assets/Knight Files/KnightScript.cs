@@ -19,8 +19,11 @@ public class KnightScript : MonoBehaviour {
 
     [SerializeField] private AudioClip sndAttack, sndJump, sndHurt, sndDead, sndWin, sndGoblin;
     AudioSource audioS;
+    
+    [SerializeField]
+    private ProgressBar pb;
 
-	void Awake () {
+    void Awake () {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         audioS = GetComponent<AudioSource>();
@@ -87,6 +90,13 @@ public class KnightScript : MonoBehaviour {
     {
         anim.SetTrigger("Hurt");
         audioS.PlayOneShot(sndHurt);
+        // decrementer la barre
+        pb.Val -= 10;
+
+        if (pb.Val <= 0)
+        {
+            Debug.Log("Game Over");
+        }
     }
 
     public void Win()
@@ -105,6 +115,7 @@ public class KnightScript : MonoBehaviour {
     {
         switch (collision.gameObject.tag)
         {
+            case "WesternShooter":
             case "Goblin":
                 if (OnAttack)
                 {

@@ -8,6 +8,7 @@ TagManager:
   - PointRetour
   - Goblin
   - Mace
+  - WesternShooter
   layers:
   - Default
   - TransparentFX
@@ -17,7 +18,7 @@ TagManager:
   - UI
   - Player
   - Background
-  - 
+  - Bullet
   - 
   - 
   - 

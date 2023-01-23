@@ -1,10 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using UnityEngine;
+using Quaternion = UnityEngine.Quaternion;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
 
 public class WesterShooterScript : MonoBehaviour
 {
-    [SerializeField] private float speed = 2f;
+    [SerializeField] private float speed = 2f, shootForce = 800f;
 
     private Vector2 startPos;
 
@@ -22,6 +26,9 @@ public class WesterShooterScript : MonoBehaviour
     //layers pour eviter que le raycast touche le character de l'enemy
     [SerializeField] private LayerMask layer;
     
+    // pour le bullet gameobject
+    public GameObject bullet;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -58,7 +65,12 @@ public class WesterShooterScript : MonoBehaviour
                 anim.SetBool("shoot", true);
                 if (!audios.isPlaying)
                     audios.Play();
-            } 
+            }
+            else
+            {
+                shoot = false;
+                anim.SetBool("shoot", false);
+            }
         }
         else
         {
@@ -85,5 +97,16 @@ public class WesterShooterScript : MonoBehaviour
         // on inverse le speed pour que notre charactère ne puisse pas continuer d'aller à droite
         speed = -speed;
         lookRight = !lookRight;
+    }
+    
+    // pour tirer la balle
+    void shootBullet()
+    {
+        GameObject b = Instantiate(bullet, transform.position, Quaternion.identity);
+
+        Vector2 direction = lookRight ? Vector2.right : Vector2.left;
+        
+        b.GetComponent<Rigidbody2D>().AddForce(direction * shootForce);
+        // on va tirer la balle à travers un event. 
     }
 }
